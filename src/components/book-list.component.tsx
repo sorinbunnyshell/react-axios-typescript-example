@@ -1,37 +1,37 @@
 import { Component, ChangeEvent } from "react";
-import TutorialDataService from "../services/tutorial.service";
+import BookDataService from "../services/book.service";
 import { Link } from "react-router-dom";
-import ITutorialData from '../types/tutorial.type';
+import IBookData from '../types/book.type';
 
 type Props = {};
 
 type State = {
-  tutorials: Array<ITutorialData>,
-  currentTutorial: ITutorialData | null,
+  books: Array<IBookData>,
+  currentBook: IBookData | null,
   currentIndex: number,
   searchTitle: string
 };
 
-export default class TutorialsList extends Component<Props, State>{
+export default class BookList extends Component<Props, State>{
   constructor(props: Props) {
     super(props);
     this.onChangeSearchTitle = this.onChangeSearchTitle.bind(this);
-    this.retrieveTutorials = this.retrieveTutorials.bind(this);
+    this.retrieveBooks = this.retrieveBooks.bind(this);
     this.refreshList = this.refreshList.bind(this);
-    this.setActiveTutorial = this.setActiveTutorial.bind(this);
-    this.removeAllTutorials = this.removeAllTutorials.bind(this);
-    this.searchTitle = this.searchTitle.bind(this);
+    this.setActiveBook = this.setActiveBook.bind(this);
+    this.removeAllBooks = this.removeAllBooks.bind(this);
+    this.searchByTitle = this.searchByTitle.bind(this);
 
     this.state = {
-      tutorials: [],
-      currentTutorial: null,
+      books: [],
+      currentBook: null,
       currentIndex: -1,
       searchTitle: ""
     };
   }
 
   componentDidMount() {
-    this.retrieveTutorials();
+    this.retrieveBooks();
   }
 
   onChangeSearchTitle(e: ChangeEvent<HTMLInputElement>) {
@@ -42,11 +42,11 @@ export default class TutorialsList extends Component<Props, State>{
     });
   }
 
-  retrieveTutorials() {
-    TutorialDataService.getAll()
+  retrieveBooks() {
+    BookDataService.getAll()
       .then((response: any) => {
         this.setState({
-          tutorials: response.data
+          books: response.data
         });
         console.log(response.data);
       })
@@ -56,22 +56,22 @@ export default class TutorialsList extends Component<Props, State>{
   }
 
   refreshList() {
-    this.retrieveTutorials();
+    this.retrieveBooks();
     this.setState({
-      currentTutorial: null,
+      currentBook: null,
       currentIndex: -1
     });
   }
 
-  setActiveTutorial(tutorial: ITutorialData, index: number) {
+  setActiveBook(book: IBookData, index: number) {
     this.setState({
-      currentTutorial: tutorial,
+      currentBook: book,
       currentIndex: index
     });
   }
 
-  removeAllTutorials() {
-    TutorialDataService.deleteAll()
+  removeAllBooks() {
+    BookDataService.deleteAll()
       .then((response: any) => {
         console.log(response.data);
         this.refreshList();
@@ -81,16 +81,16 @@ export default class TutorialsList extends Component<Props, State>{
       });
   }
 
-  searchTitle() {
+  searchByTitle() {
     this.setState({
-      currentTutorial: null,
+      currentBook: null,
       currentIndex: -1
     });
 
-    TutorialDataService.findByTitle(this.state.searchTitle)
+    BookDataService.findByTitle(this.state.searchTitle)
       .then((response: any) => {
         this.setState({
-          tutorials: response.data
+          books: response.data
         });
         console.log(response.data);
       })
@@ -100,7 +100,7 @@ export default class TutorialsList extends Component<Props, State>{
   }
 
   render() {
-    const { searchTitle, tutorials, currentTutorial, currentIndex } = this.state;
+    const { searchTitle, books, currentBook, currentIndex } = this.state;
 
     return (
       <div className="list row">
@@ -117,7 +117,7 @@ export default class TutorialsList extends Component<Props, State>{
               <button
                 className="btn btn-outline-secondary"
                 type="button"
-                onClick={this.searchTitle}
+                onClick={this.searchByTitle}
               >
                 Search
               </button>
@@ -125,56 +125,56 @@ export default class TutorialsList extends Component<Props, State>{
           </div>
         </div>
         <div className="col-md-6">
-          <h4>Tutorials List</h4>
+          <h4>Book List</h4>
 
           <ul className="list-group">
-            {tutorials &&
-              tutorials.map((tutorial: ITutorialData, index: number) => (
+            {books &&
+              books.map((book: IBookData, index: number) => (
                 <li
                   className={
                     "list-group-item " +
                     (index === currentIndex ? "active" : "")
                   }
-                  onClick={() => this.setActiveTutorial(tutorial, index)}
+                  onClick={() => this.setActiveBook(book, index)}
                   key={index}
                 >
-                  {tutorial.title}
+                  {book.title}
                 </li>
               ))}
           </ul>
 
           <button
             className="m-3 btn btn-sm btn-danger"
-            onClick={this.removeAllTutorials}
+            onClick={this.removeAllBooks}
           >
-            Remove All
+            Remove All Books
           </button>
         </div>
         <div className="col-md-6">
-          {currentTutorial ? (
+          {currentBook ? (
             <div>
-              <h4>Tutorial</h4>
+              <h4>Book</h4>
               <div>
                 <label>
                   <strong>Title:</strong>
                 </label>{" "}
-                {currentTutorial.title}
+                {currentBook.title}
               </div>
               <div>
                 <label>
                   <strong>Description:</strong>
                 </label>{" "}
-                {currentTutorial.description}
+                {currentBook.description}
               </div>
               <div>
                 <label>
-                  <strong>Status:</strong>
+                  <strong>Availability:</strong>
                 </label>{" "}
-                {currentTutorial.published ? "Published" : "Pending"}
+                {currentBook.available ? "Available" : "Lent"}
               </div>
 
               <Link
-                to={"/tutorials/" + currentTutorial.id}
+                to={"/books/" + currentBook.id}
                 className="badge badge-warning"
               >
                 Edit
@@ -183,7 +183,7 @@ export default class TutorialsList extends Component<Props, State>{
           ) : (
             <div>
               <br />
-              <p>Please click on a Tutorial...</p>
+              <p>Choose a Book</p>
             </div>
           )}
         </div>

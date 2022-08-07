@@ -1,43 +1,43 @@
 import { Component, ChangeEvent } from "react";
 import { RouteComponentProps } from 'react-router-dom';
 
-import TutorialDataService from "../services/tutorial.service";
-import ITutorialData from "../types/tutorial.type";
+import BookDataService from "../services/book.service";
+import IBookData from "../types/book.type";
 
-interface RouterProps { // type for `match.params`
-  id: string; // must be type `string` since value comes from the URL
+interface RouterProps {
+  id: string;
 }
 
 type Props = RouteComponentProps<RouterProps>;
 
 type State = {
-  currentTutorial: ITutorialData;
+  currentBook: IBookData;
   message: string;
 }
 
-export default class Tutorial extends Component<Props, State> {
+export default class Book extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.onChangeTitle = this.onChangeTitle.bind(this);
     this.onChangeDescription = this.onChangeDescription.bind(this);
-    this.getTutorial = this.getTutorial.bind(this);
-    this.updatePublished = this.updatePublished.bind(this);
-    this.updateTutorial = this.updateTutorial.bind(this);
-    this.deleteTutorial = this.deleteTutorial.bind(this);
+    this.getBook = this.getBook.bind(this);
+    this.updateAvailable = this.updateAvailable.bind(this);
+    this.updateBook = this.updateBook.bind(this);
+    this.deleteBook = this.deleteBook.bind(this);
 
     this.state = {
-      currentTutorial: {
+      currentBook: {
         id: null,
         title: "",
         description: "",
-        published: false,
+        available: false,
       },
       message: "",
     };
   }
 
   componentDidMount() {
-    this.getTutorial(this.props.match.params.id);
+    this.getBook(this.props.match.params.id);
   }
 
   onChangeTitle(e: ChangeEvent<HTMLInputElement>) {
@@ -45,8 +45,8 @@ export default class Tutorial extends Component<Props, State> {
 
     this.setState(function (prevState) {
       return {
-        currentTutorial: {
-          ...prevState.currentTutorial,
+        currentBook: {
+          ...prevState.currentBook,
           title: title,
         },
       };
@@ -57,18 +57,18 @@ export default class Tutorial extends Component<Props, State> {
     const description = e.target.value;
 
     this.setState((prevState) => ({
-      currentTutorial: {
-        ...prevState.currentTutorial,
+      currentBook: {
+        ...prevState.currentBook,
         description: description,
       },
     }));
   }
 
-  getTutorial(id: string) {
-    TutorialDataService.get(id)
+  getBook(id: string) {
+    BookDataService.get(id)
       .then((response: any) => {
         this.setState({
-          currentTutorial: response.data,
+          currentBook: response.data,
         });
         console.log(response.data);
       })
@@ -77,22 +77,22 @@ export default class Tutorial extends Component<Props, State> {
       });
   }
 
-  updatePublished(status: boolean) {
-    const data: ITutorialData = {
-      id: this.state.currentTutorial.id,
-      title: this.state.currentTutorial.title,
-      description: this.state.currentTutorial.description,
-      published: status,
+  updateAvailable(status: boolean) {
+    const data: IBookData = {
+      id: this.state.currentBook.id,
+      title: this.state.currentBook.title,
+      description: this.state.currentBook.description,
+      available: status,
     };
 
-    TutorialDataService.update(data, this.state.currentTutorial.id)
+    BookDataService.update(data, this.state.currentBook.id)
       .then((response: any) => {
         this.setState((prevState) => ({
-          currentTutorial: {
-            ...prevState.currentTutorial,
-            published: status,
+          currentBook: {
+            ...prevState.currentBook,
+            available: status,
           },
-          message: "The status was updated successfully!"
+          message: "The availability was updated successfully"
         }));
         console.log(response.data);
       })
@@ -101,15 +101,15 @@ export default class Tutorial extends Component<Props, State> {
       });
   }
 
-  updateTutorial() {
-    TutorialDataService.update(
-      this.state.currentTutorial,
-      this.state.currentTutorial.id
+  updateBook() {
+    BookDataService.update(
+      this.state.currentBook,
+      this.state.currentBook.id
     )
       .then((response: any) => {
         console.log(response.data);
         this.setState({
-          message: "The tutorial was updated successfully!",
+          message: "The Book was updated successfully",
         });
       })
       .catch((e: Error) => {
@@ -117,11 +117,14 @@ export default class Tutorial extends Component<Props, State> {
       });
   }
 
-  deleteTutorial() {
-    TutorialDataService.delete(this.state.currentTutorial.id)
+  deleteBook() {
+    BookDataService.delete(this.state.currentBook.id)
       .then((response: any) => {
         console.log(response.data);
-        this.props.history.push("/tutorials");
+        this.setState({
+          message: "The Book was deleted successfully",
+        });
+        this.props.history.push("/books");
       })
       .catch((e: Error) => {
         console.log(e);
@@ -129,13 +132,13 @@ export default class Tutorial extends Component<Props, State> {
   }
 
   render() {
-    const { currentTutorial } = this.state;
+    const { currentBook } = this.state;
 
     return (
       <div>
-        {currentTutorial ? (
+        {currentBook ? (
           <div className="edit-form">
-            <h4>Tutorial</h4>
+            <h4>Book</h4>
             <form>
               <div className="form-group">
                 <label htmlFor="title">Title</label>
@@ -143,7 +146,7 @@ export default class Tutorial extends Component<Props, State> {
                   type="text"
                   className="form-control"
                   id="title"
-                  value={currentTutorial.title}
+                  value={currentBook.title}
                   onChange={this.onChangeTitle}
                 />
               </div>
@@ -153,38 +156,38 @@ export default class Tutorial extends Component<Props, State> {
                   type="text"
                   className="form-control"
                   id="description"
-                  value={currentTutorial.description}
+                  value={currentBook.description}
                   onChange={this.onChangeDescription}
                 />
               </div>
 
               <div className="form-group">
                 <label>
-                  <strong>Status:</strong>
+                  <strong>Availability:</strong>
                 </label>
-                {currentTutorial.published ? "Published" : "Pending"}
+                {currentBook.available ? "Available" : "Lent"}
               </div>
             </form>
 
-            {currentTutorial.published ? (
+            {currentBook.available ? (
               <button
                 className="badge badge-primary mr-2"
-                onClick={() => this.updatePublished(false)}
+                onClick={() => this.updateAvailable(false)}
               >
-                UnPublish
+                Lend book
               </button>
             ) : (
               <button
                 className="badge badge-primary mr-2"
-                onClick={() => this.updatePublished(true)}
+                onClick={() => this.updateAvailable(true)}
               >
-                Publish
+                Return in library
               </button>
             )}
 
             <button
               className="badge badge-danger mr-2"
-              onClick={this.deleteTutorial}
+              onClick={this.deleteBook}
             >
               Delete
             </button>
@@ -192,7 +195,7 @@ export default class Tutorial extends Component<Props, State> {
             <button
               type="submit"
               className="badge badge-success"
-              onClick={this.updateTutorial}
+              onClick={this.updateBook}
             >
               Update
             </button>
@@ -201,7 +204,7 @@ export default class Tutorial extends Component<Props, State> {
         ) : (
           <div>
             <br />
-            <p>Please click on a Tutorial...</p>
+            <p>Click on a Book to see details</p>
           </div>
         )}
       </div>

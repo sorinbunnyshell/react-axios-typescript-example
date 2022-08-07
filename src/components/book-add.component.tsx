@@ -1,26 +1,26 @@
 import { Component, ChangeEvent } from "react";
-import TutorialDataService from "../services/tutorial.service";
-import ITutorialData from '../types/tutorial.type';
+import BookDataService from "../services/book.service";
+import IBookData from '../types/book.type';
 
 type Props = {};
 
-type State = ITutorialData & {
+type State = IBookData & {
   submitted: boolean
 };
 
-export default class AddTutorial extends Component<Props, State> {
+export default class BookAdd extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
     this.onChangeTitle = this.onChangeTitle.bind(this);
     this.onChangeDescription = this.onChangeDescription.bind(this);
-    this.saveTutorial = this.saveTutorial.bind(this);
-    this.newTutorial = this.newTutorial.bind(this);
+    this.saveBook = this.saveBook.bind(this);
+    this.newBook = this.newBook.bind(this);
 
     this.state = {
       id: null,
       title: "",
       description: "",
-      published: false,
+      available: false,
       submitted: false
     };
   }
@@ -37,19 +37,19 @@ export default class AddTutorial extends Component<Props, State> {
     });
   }
 
-  saveTutorial() {
-    const data: ITutorialData = {
+  saveBook() {
+    const data: IBookData = {
       title: this.state.title,
       description: this.state.description
     };
 
-    TutorialDataService.create(data)
+    BookDataService.create(data)
       .then((response: any) => {
         this.setState({
           id: response.data.id,
           title: response.data.title,
           description: response.data.description,
-          published: response.data.published,
+          available: response.data.available,
           submitted: true
         });
         console.log(response.data);
@@ -59,12 +59,12 @@ export default class AddTutorial extends Component<Props, State> {
       });
   }
 
-  newTutorial() {
+  newBook() {
     this.setState({
       id: null,
       title: "",
       description: "",
-      published: false,
+      available: false,
       submitted: false
     });
   }
@@ -76,9 +76,9 @@ export default class AddTutorial extends Component<Props, State> {
       <div className="submit-form">
         {submitted ? (
           <div>
-            <h4>You submitted successfully!</h4>
-            <button className="btn btn-success" onClick={this.newTutorial}>
-              Add
+            <h4>The Book was added</h4>
+            <button className="btn btn-success" onClick={this.newBook}>
+              Add another Book
             </button>
           </div>
         ) : (
@@ -109,8 +109,8 @@ export default class AddTutorial extends Component<Props, State> {
               />
             </div>
 
-            <button onClick={this.saveTutorial} className="btn btn-success">
-              Submit
+            <button onClick={this.saveBook} className="btn btn-success">
+              Add Book
             </button>
           </div>
         )}
